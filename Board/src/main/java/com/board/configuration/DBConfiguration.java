@@ -37,13 +37,21 @@ public class DBConfiguration {
 	public SqlSessionFactory sqlSessionFactory() throws Exception { // SqlSessionFactory는 디비의 커넥션과 SQL 실행에 대한 모든 것을 갖는 정말 중요한 역할을 함
 		SqlSessionFactoryBean factoryBean = new SqlSessionFactoryBean(); // SqlSessionFactoryBean: 마이바티스와 스프링의 연동 모듈로 사용
 		factoryBean.setDataSource(dataSource());
-//		factoryBean.setMapperLocations(applicationContext.getResources("classpath:/mappers/**/*Mapper.xml"));
+		factoryBean.setMapperLocations(applicationContext.getResources("classpath:/mappers/**/*Mapper.xml")); // getResources 메서드의 인자로 지정된 패턴에 포함되는 XMl Mapper를 인식하도록 하는 역할을 함
+		factoryBean.setTypeAliasesPackage("com.board.domain");
+		factoryBean.setConfiguration(mybatisConfg()); // 마이바티스 설정과 관련된 빈을 설정 파일로 지정
 		return factoryBean.getObject();
 	}
 
 	@Bean
 	public SqlSessionTemplate sqlSession() throws Exception { // SqlSessionTemplate 마이바티스 스프링 연동 모듈의 핵심. SqlSession을 구현하고, 코드에서 sqlSession을 대체하는 역할을 함. 쓰레드에 안전하고, 여러 개의 DAO나 Mapper에서 공유할 수 있다. 필요한 시점에 세션을 닫고, 커밋 또는 롤백하는 것을 포함한 세션의 생명주기를 관리함.
 		return new SqlSessionTemplate(sqlSessionFactory());
+	}
+	
+	@Bean
+	@ConfigurationProperties(prefix = "mybatis.configuration")
+	public org.apache.ibatis.session.Configuration mybatisConfg() {
+		return new org.apache.ibatis.session.Configuration();
 	}
 
 }
